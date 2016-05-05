@@ -2,35 +2,35 @@
 #PythonIsShell
 
 pis_init(){
-    pis_server_addr='/tmp/PythonIsShell' data +%s
+    pis_server_addr='/tmp/PythonIsShell'data +%s
+    pis_server $pis_server_addr
 }
 pis(){
+    #send code to interface
     local codes=''
     while read line
     do
         codes=$codes'\n'$line
     done
-    codes=$codes'\n''cmd exec'
     echo $codes | interface $pis_server_addr
+    #run
+    echo 'cmd exec' | interface -a $pis_server_addr --type ctrl
+    #input & output
+    interface --type io
 }
 pis_destroy(){
-    echo 'cmd quit' | interface $pis_server_addr
-    rm pis_server_addr
+    echo 'cmd quit' | interface -a $pis_server_addr --type ctrl
+    rm $pis_server_addr
+    rm $pis_server_addr'_control'
+    rm $pis_server_addr'_io'
 }
-#this function is writed for debug
-interface(){
-    echo $1
-    while read line
-    do
-        echo $line
-    done
-}
-pis 0<<~python
+
+pis <<~python
 def func():{
     print 'this is a python func'
-    if true:{
+    if True:{
         print 'hoo'
-    }else{
+    }else:{
         print 'foo'
     }
 }
